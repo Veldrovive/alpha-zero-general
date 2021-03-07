@@ -16,22 +16,12 @@ inverse_content = {
 game = GomakuGame(8)
 
 
-def get_move_func(checkpoint = "./checkpoints/best.pth.tar"):
-    net = NNet(game)
-    net.load_checkpoint(checkpoint)
-    args = dotdict({'numMCTSSims': 50, 'cpuct': 1.0})
-    mcts = MCTS(game, n1, args1)
-
-
-def move(board, col):
-    board = from_string_array(board)
-
 class Player:
-    def __init__(self, checkpoint = "./checkpoints/best.pth.tar"):
+    def __init__(self, checkpoint = "./checkpoints/best.pth.tar", iterations=50):
         self.checkpoint = checkpoint
         self.size = 8
         self.net = NNet(game)
-        self.args = dotdict({'numMCTSSims': 50, 'cpuct': 1.0})
+        self.args = dotdict({'numMCTSSims': iterations, 'cpuct': 1.0})
         self.mcts = MCTS(game, self.net, self.args)
 
     def from_string_array(self, board_seed: List[List[str]]):
@@ -47,9 +37,13 @@ class Player:
         action_y, action_x = action // self.size, action % self.size
         return action_y, action_x
 
-    def move(self, board, col):
-        player = 1 if col == "w" else -1
-        board = self.from_string_array(board)
+    def yx_to_action(self, y, x):
+        return y * self.size + x
+
+    def move(self, board, player, tournament_style=False):
+        if tournament_style:
+            player = 1 if player == "w" else -1
+            board = self.from_string_array(board)
 
         canonical_board = game.getCanonicalForm(board, player)
         action_probs = self.mcts.getActionProb(canonical_board, temp=0)

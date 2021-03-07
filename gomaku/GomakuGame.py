@@ -27,11 +27,9 @@ class GomakuGame(Game):
         board = np.zeros((self.size, self.size))
         if play_random_moves > 0:
             moves = np.random.choice(self.size**2, play_random_moves*2, replace=False)
-            white_moves, black_moves = np.array_split(moves, 2)
-            for action in white_moves:
-                board = self.getNextState(board, 1, action)[0]
-            for action in black_moves:
-                board = self.getNextState(board, -1, action)[0]
+            for i, action in enumerate(moves):
+                player = 1 if i < play_random_moves else -1
+                board = self.getNextState(board, player, action)[0]
         return board
 
     def getBoardSize(self):
