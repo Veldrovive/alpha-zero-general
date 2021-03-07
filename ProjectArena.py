@@ -60,7 +60,7 @@ def play_gomoku_auto(player_1: Player, player_2: Player, r_seed=None, verbose=Fa
 
         if verbose:
             print_board(game, board)
-        game_res = game.getGameEnded(board, -1)
+        game_res = game.getGameEnded(board, 1)
         if game_res != 0:
             winner = get_winner(game_res)
             if verbose:
