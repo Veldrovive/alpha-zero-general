@@ -127,7 +127,7 @@ class GomakuGame(Game):
                 # Chck the rows that were not on the second y pass
                 winner = winner or detect_five(y_start, x_start, 1, -1)
         if winner is not None:
-            return player*winner  # TODO: Make sure this actually verifies the winner
+            return winner  # TODO: Make sure this actually verifies the winner
 
         if np.max(self.getValidMoves(board, -player)) > 0:
             return 0
