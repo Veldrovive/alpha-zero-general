@@ -127,7 +127,7 @@ class GomakuGame(Game):
                 # Chck the rows that were not on the second y pass
                 winner = winner or detect_five(y_start, x_start, 1, -1)
         if winner is not None:
-            return winner  # TODO: Make sure this actually verifies the winner
+            return player*winner  # TODO: Make sure this actually verifies the winner
 
         if np.max(self.getValidMoves(board, -player)) > 0:
             return 0
@@ -160,6 +160,7 @@ class GomakuGame(Game):
                        form of the board and the corresponding pi vector. This
                        is used when training the neural network from examples.
         """
+        return [(board, pi)]
         augmented_boards = []
         # We reshape the policy into a board so that when we rotate or reflect it the policy changes correctly
         policy_board = np.reshape(pi, (self.size, self.size))

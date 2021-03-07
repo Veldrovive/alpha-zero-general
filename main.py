@@ -7,6 +7,14 @@ from gomaku.GomakuGame import GomakuGame as Game
 from gomaku.pytorch.NNet import NNetWrapper as nn
 from utils import *
 
+import torch
+import random
+import numpy as np
+SEED = 0
+torch.manual_seed(SEED)
+random.seed(SEED)
+np.random.seed(SEED)
+
 log = logging.getLogger(__name__)
 
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
@@ -31,7 +39,7 @@ args = dotdict({
 
 def main():
     log.info('Loading %s...', Game.__name__)
-    g = Game(6)
+    g = Game(8)
 
     log.info('Loading %s...', nn.__name__)
     nnet = nn(g)

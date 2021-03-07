@@ -68,6 +68,12 @@ class Coach():
             if r != 0:
                 return [(x[0], x[2], r * ((-1) ** (x[1] != self.curPlayer))) for x in trainExamples]
 
+    def printExamples(self, examples):
+        num_examples = len(examples)
+        for i in range(0, num_examples):
+            board, pi, value = examples[i]
+            print("********************\n", self.game.stringRepresentation(board), "\nValue:", value, "\nPolicy:", pi)
+
     def learn(self):
         """
         Performs numIters iterations with numEps episodes of self-play in each
@@ -87,8 +93,8 @@ class Coach():
                 for _ in tqdm(range(self.args.numEps), desc="Self Play"):
                     self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
                     iterationTrainExamples += self.executeEpisode()
-                    board, pi, value = iterationTrainExamples[-1]
-                    # print(self.game.stringRepresentation(board), value)
+                    # self.printExamples(iterationTrainExamples)
+                    # exit(0)
 
                 # save the iteration examples to the history 
                 self.trainExamplesHistory.append(iterationTrainExamples)
