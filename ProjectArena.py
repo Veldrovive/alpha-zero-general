@@ -38,6 +38,7 @@ def play_gomoku_auto(player_1: Player, player_2: Player, r_seed=None, verbose=Fa
         p1_times.append(time() - s)
         if verbose:
             print(f"\n\n**************\nWhite move:({move_y}, {move_x})")
+            print(f"Using checkpoint: {player_1.checkpoint}")
         board = game.getNextState(board, 1, player_1.yx_to_action(move_y, move_x))[0]
 
         if verbose:
@@ -56,6 +57,7 @@ def play_gomoku_auto(player_1: Player, player_2: Player, r_seed=None, verbose=Fa
         p2_times.append(time() - s)
         if verbose:
             print(f"\n\n**************\nBlack move:({move_y}, {move_x})")
+            print(f"Using checkpoint: {player_2.checkpoint}")
         board = game.getNextState(board, -1, player_2.yx_to_action(move_y, move_x))[0]
 
         if verbose:
