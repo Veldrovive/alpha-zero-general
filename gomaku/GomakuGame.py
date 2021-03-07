@@ -160,7 +160,7 @@ class GomakuGame(Game):
                        form of the board and the corresponding pi vector. This
                        is used when training the neural network from examples.
         """
-        return [(board, pi)]
+        # return [(board, pi)]
         augmented_boards = []
         # We reshape the policy into a board so that when we rotate or reflect it the policy changes correctly
         policy_board = np.reshape(pi, (self.size, self.size))
