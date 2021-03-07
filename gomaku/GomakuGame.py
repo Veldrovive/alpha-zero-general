@@ -15,13 +15,24 @@ class GomakuGame(Game):
         super(Game, self).__init__()
         self.size = n
 
-    def getInitBoard(self):
+    def getInitBoard(self, play_random_moves=2):
         """
+        Input:
+            play_random_moves: Plays n random moves for both players so that the first player doesn't always win
+
         Returns:
             startBoard: a representation of the board (ideally this is the form
                         that will be the input to your neural network)
         """
-        return np.zeros((self.size, self.size))
+        board = np.zeros((self.size, self.size))
+        if play_random_moves > 0:
+            moves = np.random.choice(self.size**2, play_random_moves*2, replace=False)
+            white_moves, black_moves = np.array_split(moves, 2)
+            for action in white_moves:
+                board = self.getNextState(board, 1, action)[0]
+            for action in black_moves:
+                board = self.getNextState(board, -1, action)[0]
+        return board
 
     def getBoardSize(self):
         """
