@@ -11,6 +11,12 @@ class GomakuGame(Game):
         1: "w"
     }
 
+    inverse_content = {
+        "b": -1,
+        "-": 0,
+        "w": 1
+    }
+
     def __init__(self, n):
         super(Game, self).__init__()
         self.size = n
@@ -112,6 +118,8 @@ class GomakuGame(Game):
                         seq_player = cur_player
                 y_start += d_y
                 x_start += d_x
+            if seq_length == 5:
+                return seq_player
             return None
 
         # Check for a winner
@@ -194,3 +202,25 @@ class GomakuGame(Game):
         """
         return '\n'.join([''.join([self.content[x] for x in line]) for line in board])
 
+    def from_string(self, board_seed: str):
+        # This is the format that game.to_string returns
+        board = np.zeros((self.size, self.size))
+        lines = board_seed.split("\n")
+        for y in range(len(lines)):
+            for x in range(len(lines[0])):
+                val = GomakuGame.inverse_content[lines[y][x]]
+                board[y, x] = val
+        return board
+
+if __name__ == "__main__":
+    board = """-w------
+----wwb-
+--wb-b--
+--bwb---
+-bbwbwb-
+--bwwwww
+--wb-w--
+-----b-b"""
+    game = GomakuGame(8)
+    board = game.from_string(board)
+    print(game.getGameEnded(board, 1))

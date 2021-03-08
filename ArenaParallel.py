@@ -6,6 +6,7 @@ import numpy as np
 import concurrent.futures as conc
 from time import sleep
 from gomaku.GomakuGame import GomakuGame
+import os
 
 from tqdm import tqdm
 
@@ -17,7 +18,7 @@ class Arena():
     An Arena class where any 2 agents can be pit against each other.
     """
 
-    def __init__(self, player1_checkpoint, player2_checkpoint, num_agents, game, args=None, display=None):
+    def __init__(self, player1_checkpoint, player2_checkpoint, num_agents, game, args=None, display=None, names=None):
         """
         Input:
             player 1,2: two functions that takes board as input, return action
@@ -35,6 +36,7 @@ class Arena():
         self.game = game
         self.display = display
         self.args = args or dotdict({'numMCTSSims': 50, 'cpuct': 1.0})
+        self.names = names or ("Player_1", "Player_2")
 
         # If player1 or player2 are checkpoints, load them. Otherwise the same agent will play for each.
         if isinstance(self.player1, str):
@@ -54,7 +56,7 @@ class Arena():
         mcts = MCTS(self.game, net, self.args)
         return lambda board: np.argmax(mcts.getActionProb(board, temp=0))
 
-    def playGame(self, agent_index, verbose=False, reverse=False):
+    def playGame(self, agent_index, verbose=False, reverse=False, save_index=-1):
         """
         Executes one episode of a game.
 
@@ -64,6 +66,23 @@ class Arena():
             or
                 draw result returned from the game that is neither 1, -1, nor 0.
         """
+        file = None
+        if save_index > -1:
+            os.makedirs("./tmp", exist_ok=True)
+            file = open(f"./tmp/{self.names[0]}_vs_{self.names[1]}_match_{save_index}.txt", "w")
+
+        def log_move(player, action, board):
+            if save_index > -1:
+                player_index = int((player + 1) / 2)
+                player_name = self.names[player_index]
+                str_board = self.game.stringRepresentation(board)
+                y, x = action // 8, action % 8
+                file.write("********************\n")
+                file.write(f"Player {player_name} played ({y}, {x})\n")
+                file.write(str_board)
+                file.write("\n\n")
+
+
         if reverse:
             players = [self.player1s[agent_index], None, self.player2s[agent_index]]
         else:
@@ -86,13 +105,18 @@ class Arena():
                 log.debug(f'valids = {valids}')
                 assert valids[action] > 0
             board, curPlayer = self.game.getNextState(board, curPlayer, action)
+            log_move(curPlayer, action, board)
         if verbose:
             assert self.display
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
             self.display(board)
+        try:
+            file.close()
+        except AttributeError:
+            pass
         return (-1 if reverse else 1) * curPlayer * self.game.getGameEnded(board, curPlayer)
 
-    def handle_agent(self, agent_index, results):
+    def handle_agent(self, agent_index, results, log=False):
         """
         Plays games with agents[agent_index] storing winner in results until self.to_play == 0
         :param agent_index:
@@ -102,10 +126,10 @@ class Arena():
         while self.left_to_play > 0:
             self.left_to_play -= 1  # TODO: Figure out if this is a race condition. Since this is threading and not multiprocessesing I don't see why it would be.
             reverse = self.left_to_play < self.to_play/2
-            results.append(self.playGame(agent_index, reverse=reverse))
+            results.append(self.playGame(agent_index, save_index=self.to_play-self.left_to_play if log else -1, reverse=reverse))
             self.played += 1
 
-    def playGamesParallel(self, num, verbose=False):
+    def playGamesParallel(self, num, verbose=False, log=False):
         """
         Plays num games with a thread for each agent.
         :param num:
@@ -118,7 +142,7 @@ class Arena():
         self.played = 0
         results = []
         with conc.ThreadPoolExecutor(max_workers=self.num_agents) as executor:
-            executor.map(lambda p: self.handle_agent(*p), [(i, results) for i in range(self.num_agents)])
+            executor.map(lambda p: self.handle_agent(*p), [(i, results, log) for i in range(self.num_agents)])
             with tqdm(total=self.to_play, desc="Arena Games (Parallelized)") as pbar:
                 last = self.played
                 while self.played < self.to_play:
@@ -145,4 +169,4 @@ class Arena():
 if __name__ == "__main__":
     game = GomakuGame(8)
     arena = Arena("/Users/aidandempster/Desktop/EngSci/ESC190/alphaZero/checkpoints/best.pth.tar", "/Users/aidandempster/Desktop/EngSci/ESC190/alphaZero/checkpoints/checkpoint_20.pth.tar", 2, game)
-    arena.playGamesParallel(10)
+    arena.playGamesParallel(10, log=True)
