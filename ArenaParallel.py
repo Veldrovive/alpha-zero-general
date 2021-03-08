@@ -36,8 +36,15 @@ class Arena():
         self.display = display
         self.args = args or dotdict({'numMCTSSims': 50, 'cpuct': 1.0})
 
-        self.player1s = [self.load_agent(self.player1) for _ in range(self.num_agents)]
-        self.player2s = [self.load_agent(self.player2) for _ in range(self.num_agents)]
+        # If player1 or player2 are checkpoints, load them. Otherwise the same agent will play for each.
+        if isinstance(self.player1, str):
+            self.player1s = [self.load_agent(self.player1) for _ in range(self.num_agents)]
+        else:
+            self.player1s = [self.player1 for _ in range(self.num_agents)]
+        if isinstance(self.player2, str):
+            self.player2s = [self.load_agent(self.player2) for _ in range(self.num_agents)]
+        else:
+            self.player2s = [self.player2 for _ in range(self.num_agents)]
         self.to_play = 0
         self.left_to_play = 0
 
@@ -93,11 +100,9 @@ class Arena():
         :return:
         """
         while self.left_to_play > 0:
-            print(f"Playing a game with agents: {agent_index}")
             self.left_to_play -= 1  # TODO: Figure out if this is a race condition. Since this is threading and not multiprocessesing I don't see why it would be.
             reverse = self.left_to_play < self.to_play/2
             results.append(self.playGame(agent_index, reverse=reverse))
-            print(f"Finished a game with agents: {agent_index}")
 
     def playGamesParallel(self, num, verbose=False):
         """
