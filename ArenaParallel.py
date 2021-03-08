@@ -103,6 +103,7 @@ class Arena():
             self.left_to_play -= 1  # TODO: Figure out if this is a race condition. Since this is threading and not multiprocessesing I don't see why it would be.
             reverse = self.left_to_play < self.to_play/2
             results.append(self.playGame(agent_index, reverse=reverse))
+            self.played += 1
 
     def playGamesParallel(self, num, verbose=False):
         """
@@ -114,14 +115,26 @@ class Arena():
         """
         self.to_play = num
         self.left_to_play = num
+        self.played = 0
         results = []
         with conc.ThreadPoolExecutor(max_workers=self.num_agents) as executor:
             executor.map(lambda p: self.handle_agent(*p), [(i, results) for i in range(self.num_agents)])
             with tqdm(total=self.to_play, desc="Arena Games (Parallelized)") as pbar:
-                while self.left_to_play > 0:
-                    pbar.n = self.to_play - self.left_to_play
-                    pbar.refresh()
+                last = self.played
+                while self.played < self.to_play:
+                    if last != self.played:
+                        res = np.array(results)
+                        total = len(results)
+                        player_1_won = np.count_nonzero(res == 1)
+                        player_2_won = np.count_nonzero(res == -1)
+                        draws = total - player_1_won - player_2_won
+                        pbar.set_description_str(f"1 Winning: {round(player_1_won*100/total, 2)}%. 2 Winning: {round(player_2_won*100/total, 2)}%. {round(draws*100/total, 2)}% Draws")
+                        pbar.n = self.played
+                        pbar.refresh()
+                        last = self.played
                     sleep(0.1)
+                pbar.n = self.to_play
+                pbar.refresh()
         results = np.array(results)
         player_1_won = np.count_nonzero(results == 1)
         player_2_won = np.count_nonzero(results == -1)
