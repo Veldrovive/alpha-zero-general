@@ -68,8 +68,9 @@ class Arena():
         """
         file = None
         if save_index > -1:
+            filename = f"./tmp/{self.names[0]}_vs_{self.names[1]}_match_{save_index}"
             os.makedirs("./tmp", exist_ok=True)
-            file = open(f"./tmp/{self.names[0]}_vs_{self.names[1]}_match_{save_index}.txt", "w")
+            file = open(f"{filename}.txt", "w")
 
         def log_move(player, action, board):
             if save_index > -1:
@@ -112,11 +113,13 @@ class Arena():
             assert self.display
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
             self.display(board)
+        winner = (-1 if reverse else 1) * curPlayer * self.game.getGameEnded(board, curPlayer)
         try:
             file.close()
+            os.rename(f"{filename}.txt", f"{filename}_winner_{int(winner)}.txt")
         except AttributeError:
             pass
-        return (-1 if reverse else 1) * curPlayer * self.game.getGameEnded(board, curPlayer)
+        return winner
 
     def handle_agent(self, agent_index, results, log=False):
         """
