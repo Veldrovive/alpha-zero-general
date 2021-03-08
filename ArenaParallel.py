@@ -116,7 +116,10 @@ class Arena():
         winner = (-1 if reverse else 1) * curPlayer * self.game.getGameEnded(board, curPlayer)
         try:
             file.close()
-            os.rename(f"{filename}.txt", f"{filename}_winner_{int(winner)}.txt")
+            if abs(winner < 1):
+                os.rename(f"{filename}.txt", f"{filename}_draw.txt")
+            else:
+                os.rename(f"{filename}.txt", f"{filename}_winner_{int(winner)}.txt")
         except AttributeError:
             pass
         return winner
