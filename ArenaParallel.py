@@ -73,6 +73,8 @@ class Arena():
 
         def log_move(player, action, board):
             if save_index > -1:
+                if reverse:
+                    player *= -1
                 player_index = int((player + 1) / 2)
                 player_name = self.names[player_index]
                 str_board = self.game.stringRepresentation(board)
