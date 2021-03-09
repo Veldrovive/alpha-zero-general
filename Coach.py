@@ -143,7 +143,7 @@ class Coach():
         if not os.path.exists(folder):
             os.makedirs(folder)
         filename = os.path.join(folder, self.getCheckpointFile(iteration) + ".examples")
-        latest = os.path.join(folder, "latest.pth.tar.examples")
+        latest = os.path.join(folder, "best.pth.tar.examples")
         with open(filename, "wb+") as f:
             Pickler(f).dump(self.trainExamplesHistory)
         with open(latest, "wb+") as f:
