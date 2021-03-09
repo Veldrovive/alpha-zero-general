@@ -191,7 +191,7 @@ class GomakuGame(Game):
                 [(rot_board, rot_policy_board.ravel()), (flipped_board, flipped_policy_board.ravel())])
         return augmented_boards
 
-    def stringRepresentation(self, board):
+    def stringRepresentation(self, board, highlight_action=None):
         """
         Input:
             board: current board
@@ -200,7 +200,15 @@ class GomakuGame(Game):
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return '\n'.join([''.join([self.content[x] for x in line]) for line in board])
+        action_y = -1 if highlight_action is None else highlight_action // self.size
+        action_x = -1 if highlight_action is None else highlight_action % self.size
+
+        def get_char(value, y, x):
+            char = self.content[value]
+            if action_y == y and action_x == x:
+                char = char.upper()
+            return char
+        return '\n'.join([''.join([get_char(val, y, x) for x, val in enumerate(line)]) for y, line in enumerate(board)])
 
     def from_string(self, board_seed: str):
         # This is the format that game.to_string returns

@@ -78,7 +78,7 @@ class Arena():
                     player *= -1
                 player_index = int((player + 1) / 2)
                 player_name = self.names[player_index]
-                str_board = self.game.stringRepresentation(board)
+                str_board = self.game.stringRepresentation(board, highlight_action=action)
                 y, x = action // 8, action % 8
                 file.write("********************\n")
                 file.write(f"Player {player_name} played ({y}, {x})\n")
