@@ -81,7 +81,11 @@ class Arena():
                 str_board = self.game.stringRepresentation(board, highlight_action=action)
                 y, x = action // 8, action % 8
                 file.write("********************\n")
-                file.write(f"Player {player_name} played ({y}, {x})\n")
+                if player == 1:
+                    color = "Black"
+                else:
+                    color = "White"
+                file.write(f"Player {player_name} as {color} played ({y}, {x})\n")
                 file.write(str_board)
                 file.write("\n\n")
 
