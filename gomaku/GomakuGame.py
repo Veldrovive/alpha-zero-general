@@ -213,14 +213,14 @@ class GomakuGame(Game):
         return board
 
 if __name__ == "__main__":
-    board = """bbwbwbww
-bbbwbbbb
-bwwbbbwb
-wbwwbwbb
-wwbwbwww
-bwbwwwbw
-bwbwwbbw
-wwbbbwww"""
+    board = """-wwbw---
+bbbwwbbb
+-bbwbb-b
+wbbwwbbb
+wwbwwwwb
+-wwbbwwb
+wwbbw--w
+b-bww-w-"""
     game = GomakuGame(8)
     board = game.from_string(board)
     print(game.getGameEnded(board, 1))
