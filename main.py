@@ -45,7 +45,7 @@ def main():
     nnet = nn(g)
 
     if args.load_model:
-        log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
+        log.info(f'Loading checkpoint "{args.load_folder_file[0]}/{args.load_folder_file[1]}"...')
         nnet.load_checkpoint(args.load_folder_file[0], args.load_folder_file[1])
     else:
         log.warning('Not loading a checkpoint!')
