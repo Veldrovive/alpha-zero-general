@@ -191,7 +191,7 @@ class GomakuGame(Game):
                 [(rot_board, rot_policy_board.ravel()), (flipped_board, flipped_policy_board.ravel())])
         return augmented_boards
 
-    def stringRepresentation(self, board, highlight_action=None):
+    def stringRepresentation(self, board, highlight_action=None, include_numbers=False):
         """
         Input:
             board: current board
@@ -208,7 +208,10 @@ class GomakuGame(Game):
             if action_y == y and action_x == x:
                 char = char.upper()
             return char
-        return '\n'.join([''.join([get_char(val, y, x) for x, val in enumerate(line)]) for y, line in enumerate(board)])
+        str_rep = '\n'.join([(f'{y} ' if include_numbers else '') + ''.join([get_char(val, y, x) for x, val in enumerate(line)]) for y, line in enumerate(board)])
+        if include_numbers:
+            str_rep = f"  {''.join([str(x) for x in range(self.size)])}\n{str_rep}"
+        return str_rep
 
     def from_string(self, board_seed: str):
         # This is the format that game.to_string returns

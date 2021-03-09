@@ -74,17 +74,17 @@ class Arena():
 
         def log_move(player, action, board):
             if save_index > -1:
-                if reverse:
-                    player *= -1
-                player_index = int((player + 1) / 2)
-                player_name = self.names[player_index]
-                str_board = self.game.stringRepresentation(board, highlight_action=action)
-                y, x = action // 8, action % 8
-                file.write("********************\n")
                 if player == 1:
                     color = "Black"
                 else:
                     color = "White"
+                if reverse:
+                    player *= -1
+                player_index = int((player + 1) / 2)
+                player_name = self.names[player_index]
+                str_board = self.game.stringRepresentation(board, highlight_action=action, include_numbers=True)
+                y, x = action // 8, action % 8
+                file.write("********************\n")
                 file.write(f"Player {player_name} as {color} played ({y}, {x})\n")
                 file.write(str_board)
                 file.write("\n\n")
@@ -182,4 +182,4 @@ class Arena():
 if __name__ == "__main__":
     game = GomakuGame(8)
     arena = Arena("/Users/aidandempster/Desktop/EngSci/ESC190/alphaZero/checkpoints/best.pth.tar", "/Users/aidandempster/Desktop/EngSci/ESC190/alphaZero/checkpoints/checkpoint_20.pth.tar", 2, game)
-    arena.playGamesParallel(10, log=True)
+    arena.playGamesParallel(4, log=True)
