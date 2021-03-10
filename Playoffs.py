@@ -1,5 +1,6 @@
 import os
 import pickle
+import sys
 
 from ArenaParallel import Arena
 from gomaku.GomakuGame import GomakuGame
@@ -7,7 +8,7 @@ from gomaku.GomakuGame import GomakuGame
 from utils import dotdict
 
 
-def start_playoff(base_path, network_type, run_type):
+def start_playoff(base_path, network_type, run_type, num_workers=1, worker_index=0):
     def get_run_path(network_type, run_type, index):
         return os.path.join(base_path, network_type, f"{run_type}-{index}")
 
@@ -77,9 +78,12 @@ def start_playoff(base_path, network_type, run_type):
 
     def playoffs(to=100):
         # Runs playoffs for every pair of checkpoints
+        to_play = len(checkpoints)/num_workers
+        start = int(round(to_play*worker_index))
+        end = int(round(to_play*(worker_index+1)))
         global data
         for p1 in reversed(checkpoints):
-            for p2 in checkpoints:
+            for p2 in checkpoints[start:end]:
                 run_playoff(p1, p2, to)
                 save_data(data)
                 data = load_data()
@@ -89,7 +93,21 @@ def start_playoff(base_path, network_type, run_type):
 
 
 if __name__ == "__main__":
+    print(sys.argv)
+    num_workers = 1
+    worker_index = 0
+    if len(sys.argv) > 1:
+        num_workers = int(sys.argv[1])
+    if len(sys.argv) > 2:
+        worker_index = int(sys.argv[2])
+    if num_workers > 1:
+        print(f"Starting playoffs with {num_workers} workers. I am worker {worker_index}.")
+        os.makedirs('./tmp', exist_ok=True)
+        orig_stdout = sys.stdout
+        f = open(f'tmp/playoff-{num_workers}-{worker_index}.txt', 'w')
+        sys.stdout = f
+
     base_path = "/content/drive/MyDrive/School/Hey, you're an engineer now/ESC190/"
     network_type = "OriginalNetwork"
     run_type = "100-20-Checkpoints"
-    start_playoff(base_path, network_type, run_type)
+    start_playoff(base_path, network_type, run_type, num_workers, worker_index)
