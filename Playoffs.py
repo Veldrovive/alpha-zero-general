@@ -60,6 +60,7 @@ def start_playoff(base_path, network_type, run_type, num_workers=1, worker_index
         data_p1 = data[p1_checkpoint]
         if p2_checkpoint not in data_p1:
             data_p1[p2_checkpoint] = {"stats": (0, 0, 0)}
+        save_data(data)
         data_playoff = data_p1[p2_checkpoint]
         stats = data_playoff["stats"]
         data = load_data()  # Reload in case another worker already played this
@@ -71,9 +72,10 @@ def start_playoff(base_path, network_type, run_type, num_workers=1, worker_index
             wins_p1, wins_p2, draws = arena.playGamesParallel(to_play, log=False)
             new_stats = (stats[0] + wins_p1, stats[1] + wins_p2, stats[2] + draws)
             data = load_data()  # Need to reload data in case a parallel worker wrote new data
-            data_playoff["stats"] = new_stats
+            data[p1_checkpoint][p2_checkpoint]["stats"] = new_stats
             print(f"Stats: {new_stats}")
             save_data(data)  # Immediately save data so that other workers can update
+            print(f"Saved: {data[p1_checkpoint]}")
         else:
             print(f"No games left to play for [Run: {p1_checkpoint[0]}, Checkpoint: {p1_checkpoint[1]}] and [Run: {p2_checkpoint[0]}, Checkpoint: {p2_checkpoint[1]}]")
 
