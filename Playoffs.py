@@ -53,6 +53,7 @@ def start_playoff(base_path, network_type, run_type, num_workers=1, worker_index
     game = GomakuGame(8)
 
     def run_playoff(p1_checkpoint, p2_checkpoint, to=100):
+        global data
         # Plays games between the two checkpoints until data has [to] games in it
         if p1_checkpoint not in data:
             data[p1_checkpoint] = {}
@@ -61,20 +62,20 @@ def start_playoff(base_path, network_type, run_type, num_workers=1, worker_index
             data_p1[p2_checkpoint] = {"stats": (0, 0, 0)}
         data_playoff = data_p1[p2_checkpoint]
         stats = data_playoff["stats"]
+        data = load_data()  # Reload in case another worker already played this
         already_played = sum(stats)
         to_play = to - already_played
         if to_play > 0:
-            print(
-                f"Starting playoff between [Run: {p1_checkpoint[0]}, Checkpoint: {p1_checkpoint[1]}] and [Run: {p2_checkpoint[0]}, Checkpoint: {p2_checkpoint[1]}]")
-            arena = Arena(get_path(p1_checkpoint), get_path(p2_checkpoint), 2, game,
-                          args=dotdict({'numMCTSSims': 100, 'cpuct': 1.0}))
+            print(f"Starting playoff between [Run: {p1_checkpoint[0]}, Checkpoint: {p1_checkpoint[1]}] and [Run: {p2_checkpoint[0]}, Checkpoint: {p2_checkpoint[1]}]")
+            arena = Arena(get_path(p1_checkpoint), get_path(p2_checkpoint), 2, game, args=dotdict({'numMCTSSims': 100, 'cpuct': 1.0}), names=(f"w-{worker_index}-p1", f"w-{worker_index}-p2"))
             wins_p1, wins_p2, draws = arena.playGamesParallel(to_play, log=False)
             new_stats = (stats[0] + wins_p1, stats[1] + wins_p2, stats[2] + draws)
+            data = load_data()  # Need to reload data in case a parallel worker wrote new data
             data_playoff["stats"] = new_stats
             print(f"Stats: {new_stats}")
+            save_data(data)  # Immediately save data so that other workers can update
         else:
-            print(
-                f"No games left to play for [Run: {p1_checkpoint[0]}, Checkpoint: {p1_checkpoint[1]}] and [Run: {p2_checkpoint[0]}, Checkpoint: {p2_checkpoint[1]}]")
+            print(f"No games left to play for [Run: {p1_checkpoint[0]}, Checkpoint: {p1_checkpoint[1]}] and [Run: {p2_checkpoint[0]}, Checkpoint: {p2_checkpoint[1]}]")
 
     def playoffs(to=100):
         # Runs playoffs for every pair of checkpoints
@@ -85,15 +86,12 @@ def start_playoff(base_path, network_type, run_type, num_workers=1, worker_index
         for p1 in reversed(checkpoints):
             for p2 in checkpoints[start:end]:
                 run_playoff(p1, p2, to)
-                save_data(data)
-                data = load_data()
                 print("\n")
 
     playoffs(to=100)
 
 
 if __name__ == "__main__":
-    print(sys.argv)
     num_workers = 1
     worker_index = 0
     if len(sys.argv) > 1:
@@ -102,10 +100,6 @@ if __name__ == "__main__":
         worker_index = int(sys.argv[2])
     if num_workers > 1:
         print(f"Starting playoffs with {num_workers} workers. I am worker {worker_index}.")
-        os.makedirs('./tmp', exist_ok=True)
-        orig_stdout = sys.stdout
-        f = open(f'tmp/playoff-{num_workers}-{worker_index}.txt', 'w')
-        sys.stdout = f
 
     base_path = "/content/drive/MyDrive/School/Hey, you're an engineer now/ESC190/"
     network_type = "OriginalNetwork"
