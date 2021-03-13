@@ -18,7 +18,7 @@ class Arena():
     An Arena class where any 2 agents can be pit against each other.
     """
 
-    def __init__(self, player1_checkpoint, player2_checkpoint, num_agents, game, args=None, display=None, names=None):
+    def __init__(self, player1_checkpoint, player2_checkpoint, num_agents, game, net_1_args=None, net_2_args=None, args=None, display=None, names=None):
         """
         Input:
             player 1,2: two functions that takes board as input, return action
@@ -40,18 +40,18 @@ class Arena():
 
         # If player1 or player2 are checkpoints, load them. Otherwise the same agent will play for each.
         if isinstance(self.player1, str):
-            self.player1s = [self.load_agent(self.player1) for _ in range(self.num_agents)]
+            self.player1s = [self.load_agent(self.player1, net_1_args) for _ in range(self.num_agents)]
         else:
             self.player1s = [self.player1 for _ in range(self.num_agents)]
         if isinstance(self.player2, str):
-            self.player2s = [self.load_agent(self.player2) for _ in range(self.num_agents)]
+            self.player2s = [self.load_agent(self.player2, net_2_args) for _ in range(self.num_agents)]
         else:
             self.player2s = [self.player2 for _ in range(self.num_agents)]
         self.to_play = 0
         self.left_to_play = 0
 
-    def load_agent(self, checkpoint):
-        net = NNet(self.game)
+    def load_agent(self, checkpoint, args):
+        net = NNet(self.game, net_args=args)
         net.load_checkpoint(filename=checkpoint)
         mcts = MCTS(self.game, net, self.args)
         return lambda board: np.argmax(mcts.getActionProb(board, temp=0))

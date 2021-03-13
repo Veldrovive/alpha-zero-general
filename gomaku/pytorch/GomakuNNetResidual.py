@@ -75,7 +75,6 @@ class OutBlock(nn.Module):
         return p, v
 
 
-
 class GomakuNet(nn.Module):
     def __init__(self, game: GomakuGame, args: dotdict):
         super(GomakuNet, self).__init__()
@@ -84,13 +83,13 @@ class GomakuNet(nn.Module):
         self.board_size = self.game.getBoardSize()[0]
         self.action_size = self.game.getActionSize()
         self.input = InputBlock(self.board_size, self.args)
-        for block in range(19):
+        for block in range(self.args.res_blocks):
             setattr(self, f"res_{block}", ResBlock(self.args.num_channels, self.args.num_channels))
         self.out = OutBlock(self.args.num_channels, self.action_size, self.board_size)
 
     def forward(self, s):
         s = self.input(s)
-        for block in range(19):
+        for block in range(self.args.res_blocks):
             s = getattr(self, f"res_{block}")(s)
         s = self.out(s)
         return s

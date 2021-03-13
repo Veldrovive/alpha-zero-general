@@ -36,13 +36,23 @@ args = dotdict({
 
 })
 
+net_args = dotdict({
+    'lr': 0.001,
+    'dropout': 0.3,
+    'epochs': 10,
+    'batch_size': 64,
+    'cuda': torch.cuda.is_available(),
+    'num_channels': 512,
+    'res_blocks': 19
+})
+
 
 def main():
     log.info('Loading %s...', Game.__name__)
     g = Game(8)
 
     log.info('Loading %s...', nn.__name__)
-    nnet = nn(g)
+    nnet = nn(g, net_args=net_args)
 
     if args.load_model:
         log.info(f'Loading checkpoint "{args.load_folder_file[0]}/{args.load_folder_file[1]}"...')

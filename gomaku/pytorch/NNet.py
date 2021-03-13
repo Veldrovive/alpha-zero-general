@@ -22,12 +22,13 @@ args = dotdict({
     'batch_size': 64,
     'cuda': torch.cuda.is_available(),
     'num_channels': 512,
+    'res_blocks': 19
 })
 
 
 class NNetWrapper(NeuralNet):
-    def __init__(self, game):
-        self.nnet = onnet(game, args)
+    def __init__(self, game, net_args: dotdict = None):
+        self.nnet = onnet(game, net_args or args)
         self.board_x, self.board_y = game.getBoardSize()
         self.action_size = game.getActionSize()
 
