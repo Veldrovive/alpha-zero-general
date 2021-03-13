@@ -12,7 +12,8 @@ from NeuralNet import NeuralNet
 import torch
 import torch.optim as optim
 
-from .GomakuNNet import GomakuNNet as onnet
+# from .GomakuNNet import GomakuNNet as onnet
+from .GomakuNNetResidual import GomakuNet as onnet
 
 args = dotdict({
     'lr': 0.001,
