@@ -82,8 +82,8 @@ class Coach():
         It then pits the new neural network against the old one and accepts it
         only if it wins >= updateThreshold fraction of games.
         """
-
-        for i in range(self.args.startIter, self.args.numIters + 1):
+        startIter = self.getMaxTrainExamplesIndex() + 2
+        for i in range(startIter, self.args.numIters + 1):
             # bookkeeping
             log.info(f'Starting Iter #{i} ...')
             # examples of the iteration
@@ -165,3 +165,8 @@ class Coach():
 
             # examples based on the model were already collected (loaded)
             self.skipFirstSelfPlay = True
+
+    def getMaxTrainExamplesIndex(self):
+        if len(self.trainExamplesHistory) < 1:
+            return -1
+        return self.trainExamplesHistory[-1][0]
