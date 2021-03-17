@@ -83,7 +83,7 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        for i in range(1, self.args.numIters + 1):
+        for i in range(self.args.startIter, self.args.numIters + 1):
             # bookkeeping
             log.info(f'Starting Iter #{i} ...')
             # examples of the iteration
@@ -97,7 +97,7 @@ class Coach():
                     # exit(0)
 
                 # save the iteration examples to the history 
-                self.trainExamplesHistory.append(iterationTrainExamples)
+                self.trainExamplesHistory.append((i-1, iterationTrainExamples))
 
             while len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
                 log.warning(
@@ -110,7 +110,7 @@ class Coach():
             # shuffle examples before training
             trainExamples = []
             for e in self.trainExamplesHistory:
-                trainExamples.extend(e)
+                trainExamples.extend(e[1])
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
