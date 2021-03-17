@@ -110,7 +110,10 @@ class Coach():
             # shuffle examples before training
             trainExamples = []
             for e in self.trainExamplesHistory:
-                trainExamples.extend(e[1])
+                if isinstance(e[0], int):
+                    trainExamples.extend(e[1])
+                else:
+                    trainExamples.extend(e)
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
@@ -169,4 +172,6 @@ class Coach():
     def getMaxTrainExamplesIndex(self):
         if len(self.trainExamplesHistory) < 1:
             return -1
-        return self.trainExamplesHistory[-1][0]
+        if isinstance(self.trainExamplesHistory[-1][0], int):
+            return self.trainExamplesHistory[-1][0]
+        return -1
