@@ -28,6 +28,10 @@ class Coach():
         self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []  # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
+        if "newModelCallback" in args:
+            self.newModelCallback = args["newModelCallback"]
+        else:
+            self.newModelCallback = lambda checkpoint: print(f"New Best at iteration: {checkpoint}")
 
     def executeEpisode(self):
         """
@@ -137,6 +141,7 @@ class Coach():
                 log.info('ACCEPTING NEW MODEL')
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
+                self.newModelCallback(i)
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
