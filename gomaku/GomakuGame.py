@@ -137,7 +137,7 @@ class GomakuGame(Game):
         for x_start in range(len(board[0])):
             # Check direction (1, 0)
             winner = winner or detect_five(y_start, x_start, 1, 0)
-            if x_start > 1:
+            if x_start > 0:
                 # Check the rows that were not on the y pass
                 winner = winner or detect_five(y_start, x_start, 1, 1)
             if x_start < len(board[0]) - 1:
