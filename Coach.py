@@ -109,7 +109,10 @@ class Coach():
                 #     # exit(0)
 
                 num_complete = 0
-                pbar = tqdm(range(self.args.numEps), desc="Self Play")
+                black_wins = 0
+                white_wins = 0
+                draws = 0
+                pbar = tqdm(range(self.args.numEps), desc=f"Self Play - White: {white_wins}, Black: {black_wins}, Draw: {draws}")
                 while num_complete < self.args.numEps:
                     self.mcts = MCTS(self.game, self.nnet, self.args)
                     newExamples, winner = self.executeEpisode()
@@ -117,6 +120,12 @@ class Coach():
                         iterationTrainExamples += newExamples
                         num_complete += 1
                         pbar.update(1)
+                        black_wins += winner == -1
+                        white_wins += winner == 1
+                    else:
+                        draws += 1
+                    pbar.set_description_str(f"Self Play - White: {white_wins}, Black: {black_wins}, Draw: {draws}")
+                    pbar.update(0)
 
 
                 # save the iteration examples to the history 
