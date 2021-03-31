@@ -70,7 +70,7 @@ class Coach():
             r = self.game.getGameEnded(board, self.curPlayer)
 
             if r != 0:
-                return [(x[0], x[2], r * ((-1) ** (x[1] != self.curPlayer))) for x in trainExamples]
+                return [(x[0], x[2], r * ((-1) ** (x[1] != self.curPlayer))) for x in trainExamples], r * self.curPlayer
 
     def printExamples(self, examples):
         num_examples = len(examples)
@@ -94,11 +94,24 @@ class Coach():
             if not self.skipFirstSelfPlay or i > 1:
                 iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
-                for _ in tqdm(range(self.args.numEps), desc="Self Play"):
-                    self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
-                    iterationTrainExamples += self.executeEpisode()
-                    # self.printExamples(iterationTrainExamples)
-                    # exit(0)
+                # for _ in tqdm(range(self.args.numEps), desc="Self Play"):
+                #     self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
+                #     newExamples, winner = self.executeEpisode()
+                #     if abs(winner) > 0.9:
+                #         iterationTrainExamples += newExamples
+                #     # self.printExamples(iterationTrainExamples)
+                #     # exit(0)
+
+                num_complete = 0
+                pbar = tqdm(range(self.args.numEps), desc="Self Play")
+                while num_complete < self.args.numEps:
+                    print("Starting episode")
+                    self.mcts = MCTS(self.game, self.nnet, self.args)
+                    newExamples, winner = self.executeEpisode()
+                    if abs(winner) > 0.9:
+                        iterationTrainExamples += newExamples
+                        pbar.update(1)
+
 
                 # save the iteration examples to the history 
                 self.trainExamplesHistory.append((i-1, iterationTrainExamples))

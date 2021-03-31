@@ -43,7 +43,7 @@ net_args = dotdict({
     'batch_size': 64,
     'cuda': torch.cuda.is_available(),
     'num_channels': 512,
-    'res_blocks': 19
+    'res_blocks': 6
 })
 
 
