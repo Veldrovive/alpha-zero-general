@@ -8,7 +8,13 @@ from time import sleep
 from gomaku.GomakuGame import GomakuGame
 import os
 
-from tqdm import tqdm
+try:
+    if 'google.colab' in str(get_ipython()):
+      from tqdm.notebook import tqdm
+    else:
+      from tqdm import tqdm
+except NameError:
+    from tqdm import tqdm
 
 log = logging.getLogger(__name__)
 
