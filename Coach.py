@@ -105,7 +105,6 @@ class Coach():
                 num_complete = 0
                 pbar = tqdm(range(self.args.numEps), desc="Self Play")
                 while num_complete < self.args.numEps:
-                    print("Starting episode")
                     self.mcts = MCTS(self.game, self.nnet, self.args)
                     newExamples, winner = self.executeEpisode()
                     if abs(winner) > 0.9:
