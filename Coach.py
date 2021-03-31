@@ -109,6 +109,7 @@ class Coach():
                     newExamples, winner = self.executeEpisode()
                     if abs(winner) > 0.9:
                         iterationTrainExamples += newExamples
+                        num_complete += 1
                         pbar.update(1)
 
 
